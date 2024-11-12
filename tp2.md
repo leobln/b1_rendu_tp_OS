@@ -117,6 +117,96 @@ Password:
 $ ls /home/leobln  
 ls: cannot open directory '/home/leobln':   Permission denied    
 ```
+> **On verra en détails la gestion des droits très vite.** 
+
+# III. Programmes et paquets
 
 
-> **On verra en détails la gestion des droits très vite.**
+## A. Run then kill
+
+🌞 **Lancer un processus `sleep`**
+
+- il doit dormir 1000 secondes
+- ouvrez un deuxième terminal, pendant que le premier est occupé par le `sleep`
+- dans ce deuxième terminal, déterminer le PID du processus `sleep`
+- il existe une commande qui permet de lister les processus en cours d'exécution (un gestionnaire des tâches quoi) : `ps`
+- syntaxe `commande | grep xxx` pour afficher uniquement la ligne du `sleep`
+  - appelez-moi si besoin d'aide sur cette syntaxe !
+
+## terminal 1
+```
+leobln@testtoto:~$ sleep 1000  
+kill 2535
+```
+## terminal 2
+```
+leobln@testtoto:~$ ps aux | grep sleep
+leobln      2535  0.0  0.0   5464   888 pts/0    S+   12:45   0:00 sleep 1000
+leobln      2537  0.0  0.1   6332  2112 pts/1    S+   12:45   0:00 grep sleep
+```
+
+🌞 **Terminez le processus `sleep` depuis le deuxième terminal**
+
+- utilisez la commande `kill` pour arrêter le processus `sleep`
+
+> Utiliser la commande `kill` revient à appuyer sur la croix rouge en haut d'une fenêtre pour fermer un programme.
+
+![Kill it](./img/killit.jpg)
+
+## B. Tâche de fond
+
+🌞 **Lancer un nouveau processus `sleep`, mais en tâche de fond**
+
+- il doit dormir 1000 secondes
+- pour lancer une commande en tâche de fond, il faut ajouter `&` à la fin de la commande
+- ainsi, on garde notre terminal actif pendant que le programme s'exécute
+
+🌞 **Visualisez la commande en tâche de fond**
+
+- il existe une commande pour lister les processus qu'on a lancé en tâche de fond
+- en utilisant cette commande, récupérez le PID du processus sleep
+
+## C. Find paths
+
+➜ La commande `sleep`, comme toutes les commandes, c'est un programme
+
+- sous Linux, on met pas l'extension `.exe`, s'il y a pas d'extensions, c'est que c'est un exécutable généralement
+
+🌞 **Trouver le chemin où est stocké le programme `sleep`**
+
+- avec une commande `find`
+
+🌞 Tant qu'on est à chercher des chemins : **trouver les chemins vers tous les fichiers qui s'appellent `.bashrc`**
+
+- utilisez la commande `find` encore
+
+
+# 2. Paquets
+
+➜ **Tous les OS Linux sont munis d'un store d'application**
+
+- c'est natif
+- quand tu fais `apt install` ou `dnf install`, ce genre de commandes, t'utilises ce store
+- on dit que `apt` et `dnf` sont des gestionnaires de paquets
+- ça permet aux utilisateurs de télécharger des nouveaux programmes (ou d'autres trucs) depuis un endroit safe
+
+🌞 **Installer le paquet `firefox`**
+
+- c'est juste pour faire pratiquer
+- si vous avez choisi un OS sans interface graphique, inutile de télécharger Firefox
+  - sans interface graphique, vous pouvez installer le paquet `git` pour remplacer
+
+🌞 **Utiliser une commande pour lancer Firefox**
+
+- comme d'hab, une commande, c'est un programme hein
+- déterminer le chemin vers le programme `firefox`
+
+🌞 **Mais aussi déterminer...**
+
+- l'adresse `http` ou `https` des serveurs où vous téléchargez des paquets
+- une commande `apt install` ou `dnf install` permet juste de faire un téléchargement HTTP
+- ma question c'est donc : sur quelle(s) URL(s) tu te connectes pour télécharger des paquets
+- il existe un dossier qui contient la liste des URLs consultées quand vous demandez un téléchargement de paquets
+- c'est un sous-dossier de `/etc/`, et ça dépend du gestionnaire de paquets que tu utilises ! (avec Debian, le gestionnaire de paquets, c'est `apt`)
+
+
