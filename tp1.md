@@ -1,6 +1,7 @@
-tp1
-
+## tp1
+*
 1
+```
 a Get-Process
 
 Handles  NPM(K)    PM(K)      WS(K)     CPU(s)     Id  SI ProcessName
@@ -270,7 +271,8 @@ Handles  NPM(K)    PM(K)      WS(K)     CPU(s)     Id  SI ProcessName
     276      15     5676      12788              2464   0 WUDFHost
     247      11     5380       7860              3012   0 WUDFHost
     282      14     2812       9172              4604   0 WUDFHost
-
+    ```
+```
 b Get-Process | Sort-Object -Property Id | Select-Object -First 3
 
 Handles  NPM(K)    PM(K)      WS(K)     CPU(s)     Id  SI ProcessName
@@ -278,7 +280,8 @@ Handles  NPM(K)    PM(K)      WS(K)     CPU(s)     Id  SI ProcessName
       0       0       60          8                 0   0 Idle
    5889       0       76       8784                 4   0 System
       0       0      188      48208               140   0 Secure System
-
+```
+```
 c (Get-Service)
   Get-Service | Where-Object { $_.Status -eq 'Running' }
 
@@ -433,6 +436,8 @@ Running  WpnService         Service du système de notifications...
 Running  WpnUserService_... Service utilisateur de notification...
 Running  wscsvc             Centre de sécurité
 Running  WSearch            Windows Search
+```
+```
 
   Get-Service | Where-Object { $_.Status -eq 'Stopped' }
 
@@ -860,3 +865,4 @@ LocalAddress RemoteAddress  ProcessId ProcessName
 10.3.213.93  52.123.200.17       7392 ms-teams
 10.3.213.93  52.123.134.243      9848 msedgewebview2
 10.3.213.93  20.199.120.182      7972 svchost
+*
