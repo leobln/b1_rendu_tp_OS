@@ -340,7 +340,19 @@ leobln@testtoto:~/Downloads$ ls
 meow
 leobln@testtoto:~/Downloads$ file meow
 meow: gzip compressed data, from Unix, original size modulo 2^32 145049600 gzip compressed data, reserved method, has CRC, extra field, has comment, from FAT filesystem (MS-DOS, OS/2, NT), original size modulo 2^32 145049600
-leobln@testtoto:~/Downloads$
+leobln@testtoto:~/Downloads$ gunzip meow.gz
+leobln@testtoto:~/Downloads$ ls
+meow
+leobln@testtoto:~/Downloads$ file meow
+meow: POSIX tar archive (GNU)
+leobln@testtoto:~/Downloads$ tar -xf meow
+leobln@testtoto:~/Downloads$ file meow
+meow: POSIX tar archive (GNU)
+leobln@testtoto:~/Downloads$ ls
+dawa  meow
+leobln@testtoto:~/Downloads$ rm meow
+leobln@testtoto:~/Downloads$ ls
+dawa
 ```
 
 > *Dans les OS Linux, le format d'archivage/compression qu'on voit le plus c'est `.tar.gz` (archivage tar avec une compression gz) et moins de `.zip`.*
