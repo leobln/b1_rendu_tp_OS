@@ -257,4 +257,105 @@ leobln@testtoto:~$ which firefox
 - il existe un dossier qui contient la liste des URLs consultées quand vous demandez un téléchargement de paquets
 - c'est un sous-dossier de `/etc/`, et ça dépend du gestionnaire de paquets que tu utilises ! (avec Debian, le gestionnaire de paquets, c'est `apt`)
 
+# IV. Poupée russe
+
+🌞 **Récupérer le fichier `meow`**
+
+- [il est dispo là](./meow) (juste à côté de ce README.md)
+- téléchargez-le à l'aide d'une commande
+
+```
+leobln@testtoto:~/Downloads$ wget https://gitlab.com/it4lik/b1-os/-/raw/main/tp/2/meow
+```
+
+🌞 **Trouver le dossier `dawa/`**
+
+- le fichier `meow` récupéré est une archive compresséePour finir de vous exercer avec le terminal, je vous ai préparé une poupée russe :D
+
+➜ **De mon côté, pour préparer l'exercice :**
+
+- j'ai créé un dossier `dawa/`, qui a plein de sous-dossiers, sous-fichiers, etc
+  - y'a des fichiers particuliers, les autres c'est juste du random
+- je l'ai archivé/compressé plusieurs fois
+- j'ai volontairement supprimé les extensions des fichiers compressés
+  - comme ça tu peux pas savoir à l'aide du nom si c'est un `.zip` ou un autre format
+
+➜ **Le but de l'exercice pour vous :**
+
+- je vous file le fichier que j'ai compressé/archivé plusieurs fois, que vous téléchargez dans la VM
+- vous devez :
+- utilisez la commande `file /path/vers/le/fichier` pour déterminer le type du fichier
+- renommez-le fichier correctement (si c'est une archive compressée ZIP, il faut ajouter `.zip` à son nom)
+- extraire l'archive avec une commande
+- répétez ces opérations jusqu'à trouver le dossier `dawa/`
+
+```
+leobln@testtoto:~/Downloads$ ls
+meow
+leobln@testtoto:~/Downloads$ file meow
+meow: Zip archive data, at least v2.0 to extract, compression method=deflate
+leobln@testtoto:~/Downloads$ mv meow meow.zip
+leobln@testtoto:~/Downloads$ ls
+meow.zip
+leobln@testtoto:~/Downloads$ unzip meow.zip
+Archive:  meow.zip
+  inflating: meow
+leobln@testtoto:~/Downloads$ ls
+meow  meow.zip
+leobln@testtoto:~/Downloads$ file meow
+meow: XZ compressed data, checksum CRC64
+leobln@testtoto:~/Downloads$ mv meow meow.xz
+leobln@testtoto:~/Downloads$ ls
+meow.xz  meow.zip
+leobln@testtoto:~/Downloads$ unxz meow.xz
+leobln@testtoto:~/Downloads$ ls
+meow  meow.zip
+leobln@testtoto:~/Downloads$ file meow
+meow: bzip2 compressed data, block size = 900k
+leobln@testtoto:~/Downloads$ mv meow meow.bz2
+leobln@testtoto:~/Downloads$ ls
+meow.bz2  meow.zip
+leobln@testtoto:~/Downloads$ bunzip2 meow.bz2
+leobln@testtoto:~/Downloads$ ls
+meow  meow.zip
+leobln@testtoto:~/Downloads$ file meow
+meow: RAR archive data, v5
+leobln@testtoto:~/Downloads$ mv meow meow.rar
+leobln@testtoto:~/Downloads$ ls
+meow.rar  meow.zip
+leobln@testtoto:~/Downloads$ unrar meow.rar
+
+unrar-free 0.1.3  Copyright (C) 2004  Ben Asselstine, Jeroen Dekkers
+
+
+Extracting from /home/leobln/Downloads/meow.rar
+
+Extracting  meow                                                      OK
+
+All OK
+leobln@testtoto:~/Downloads$ ls
+meow  meow.rar  meow.zip
+leobln@testtoto:~/Downloads$ rm meow.rar meow.zip
+leobln@testtoto:~/Downloads$ ls
+meow
+leobln@testtoto:~/Downloads$ file meow
+meow: gzip compressed data, from Unix, original size modulo 2^32 145049600 gzip compressed data, reserved method, has CRC, extra field, has comment, from FAT filesystem (MS-DOS, OS/2, NT), original size modulo 2^32 145049600
+leobln@testtoto:~/Downloads$
+```
+
+> *Dans les OS Linux, le format d'archivage/compression qu'on voit le plus c'est `.tar.gz` (archivage tar avec une compression gz) et moins de `.zip`.*
+
+🌞 **Dans le dossier `dawa/`, déterminer le chemin vers**
+
+- le seul fichier de 15Mo
+- le seul fichier qui ne contient que des `7`
+- le seul fichier qui est nommé `cookie`
+- le seul fichier caché (un fichier caché c'est juste un fichier dont le nom commence par un `.`)
+- le seul fichier qui date de 2014
+- le seul fichier qui a 5 dossiers-parents
+  - je pense que vous avez vu que la structure c'est 50 `folderX`, chacun contient 50 dossiers `X`, et chacun contient 50 `fileX`
+  - bon bah là y'a un fichier qui est contenu dans `folderX/X/X/X/X/` et c'est le seul qui 5 dossiers parents comme ça
+
+![Matryoshka](./img/dolls.png)
+
 
