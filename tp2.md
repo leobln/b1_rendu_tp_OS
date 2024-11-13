@@ -166,22 +166,67 @@ leobln      2537  0.0  0.1   6332  2112 pts/1    S+   12:45   0:00 grep sleep
 - il existe une commande pour lister les processus qu'on a lancé en tâche de fond
 - en utilisant cette commande, récupérez le PID du processus sleep
 
+### cela repond aux deux question precedente
+```
+leobln@testtoto:~$ sleep 1000 &
+[1] 2602
+leobln@testtoto:~$ ps aux | grep sleep
+leobln      2602  0.0  0.0   5464   908 pts/2    S    07:59   0:00 sleep 1000
+leobln      2604  0.0  0.1   6332  2048 pts/2    S+   08:00   0:00 grep sleep
+leobln@testtoto:~$ kill 2602
+leobln@testtoto:~$ ps aux | grep sleep
+leobln      2609  0.0  0.1   6332  2088 pts/2    S+   08:00   0:00 grep sleep
+[1]+  Terminated              sleep 1000
+```
+
 ## C. Find paths
-
-➜ La commande `sleep`, comme toutes les commandes, c'est un programme
-
-- sous Linux, on met pas l'extension `.exe`, s'il y a pas d'extensions, c'est que c'est un exécutable généralement
 
 🌞 **Trouver le chemin où est stocké le programme `sleep`**
 
 - avec une commande `find`
 
+```
+leobln@testtoto:~$ sudo find / -name "sleep"
+[sudo] password for leobln:
+/usr/lib/klibc/bin/sleep
+/usr/bin/sleep
+find: ‘/run/user/1000/doc’: Permission denied
+```
+
 🌞 Tant qu'on est à chercher des chemins : **trouver les chemins vers tous les fichiers qui s'appellent `.bashrc`**
 
 - utilisez la commande `find` encore
 
+```
+leobln@testtoto:~$ sudo find / -name ".bashrc"
+/etc/skel/.bashrc
+/root/.bashrc
+/home/papier_alu/.bashrc
+/home/leobln/.bashrc
+/home/leobln/gameshell/gameshell.1/World/.bashrc
+/home/leobln/gameshell/gameshell.2/World/.bashrc
+/home/leobln/gameshell/gameshell/World/.bashrc
+/home/marmotte/.bashrc
+find: ‘/run/user/1000/doc’: Permission denied
+```
+
+🌞 Vérifier que
+
+les commandes sleep, ssh, et ping sont bien des programmes stockés dans l'un des dossiers listés dans votre PATH
+
+```
+leobln@testtoto:~$ echo $PATH
+/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
+leobln@testtoto:~$ which sleep
+/usr/bin/sleep
+leobln@testtoto:~$ which ssh
+/usr/bin/ssh
+leobln@testtoto:~$ which ping
+/usr/bin/ping
+```
 
 # 2. Paquets
+
 
 ➜ **Tous les OS Linux sont munis d'un store d'application**
 
