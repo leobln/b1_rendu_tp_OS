@@ -104,6 +104,24 @@ marmotte:x:1001:
 - on peut demander à `cut` d'afficher plusieurs colonnes avec `-fx,y` où `x` et `y` sont les deux numéros de colonnes qu'on veut afficher
 - mettez uniquement ces deux lignes en évidence
 
+```
+leobln@testtoto:~$ sudo cat /etc/group | grep -e leobln -e root
+root:x:0:
+cdrom:x:24:leobln
+floppy:x:25:leobln
+sudo:x:27:leobln
+audio:x:29:pulse,leobln
+dip:x:30:leobln
+video:x:44:leobln
+plugdev:x:46:leobln
+users:x:100:leobln
+netdev:x:106:leobln
+bluetooth:x:111:leobln
+lpadmin:x:113:leobln
+scanner:x:116:saned,leobln
+leobln:x:1000:
+```
+
 ## 2. Hash des passwords
 
 Le *hash* des mots de passe des utilisateurs est stocké dans un fichier aussi : le fichier `/etc/shadow`.
@@ -112,48 +130,28 @@ Le *hash* des mots de passe des utilisateurs est stocké dans un fichier aussi :
 
 - mettez uniquement cette ligne en évidence
 
-## 3. Sudo
-
-### A. Intro
-
-**La *commande* `sudo` (*switch user do*) permet d'exécuter une *commande* en tant qu'un autre utilisateur** (c'est dans le nom *switch user do* pour "changer d'utilisateur et faire un truc").
-
-La syntaxe :
-
-```bash
-# la tête de la ligne c'est
-sudo -u USER COMMAND
-
-# pour qu'on exécute la commande COMMANDE
-# sous l'identité de l'utilisateur USER
-
-# par exemple
-sudo -u toto ls /etc
-# exécute la commande ls /etc en tant que toto
+```
+leobln@testtoto:~$ sudo cat /etc/shadow | grep leobln
+leobln:$y$j9T$ksi4HE87G0hCkAvpAVgTG.$56pTU0SvRcTjx8vWE772jNFIg098COelw89ecEvBxoA:20033:0:99999:7:::
 ```
 
-On l'utilise généralement pour exécuter une *commande* en tant que `root` sans se connecter directement en tant que `root`, ce qui est utile pour faire des tâches d'administration qui demandent les droits de `root`.
-
-> *Par exemple, installer des paquets avec une comande `apt install`, ça demande les privilèges de `root`.*
-
-On l'utilise tellement souvent pour exécuter une commande en tant que  `root` (et pas quelqu'un d'autre) que si on précise pas d'utilisateur avec `-u`, c'est `root`  par défaut qui sera utilisé !
-
-> *Donc taper `sudo ls` c'est pareil que `sudo -u root ls` et ça fait économiser pas mal de caractères à taper vu que c'est quasiment tout le temps ce qu'on veut faire ! (quasiment)*
-
-**Le fichier `/etc/sudoers` contient la configuration de la commande `sudo`.**
-
-On y définit quel utilisateur a le droit d'utiliser `sudo` pour devenir quel autre utilisateur afin de taper quelle commande.
-
-> *On peut par exemple dire que `it4` n'a le droit de taper que la commande `echo meow` en tant que l'utilisateur `toto`. Autrement dit, la seule commande `sudo` que `it4` peut taper sans avoir d'erreur ce serait : `sudo -u toto echo meow`.*
+## 3. Sudo
 
 🌞 **Faites en sorte que votre utilisateur puisse taper n'importe quelle commande `sudo`**
 
 - par défaut sur Debian il existe un groupe d'utilisateurs nommé `sudo`
 - tous les membres du groupe `sudo` ont par défaut le droit de taper n'importe quelle comannde `sudo`
+
 - **ajoutez donc votre utilisateur au groupe `sudo` qui existe déjà** afin de pouvopir utiliser `sudo` pleinement
 - utilisez une commande `usermod` pour ajouter votre utilisateur au groupe `sudo`
 
-> Il sera nécessaire de vous déconnecter complètement de la VM (fermer toutes vosessions) puis ouvrir une nouvelle session pour que le changement prenne effet et que puissiez taper des *commandes* `sudo`.
+```
+leobln@testtoto:~$ sudo usermod leobln
+[sudo] password for leobln:
+leobln is not in the sudoers file.
+leobln@testtoto:~$ groups leobln
+leobln : leobln cdrom floppy audio dip video plugdev users netdev bluetooth lpadmin scanner
+```
 
 ### B. Practice
 
