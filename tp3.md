@@ -146,11 +146,9 @@ leobln:$y$j9T$ksi4HE87G0hCkAvpAVgTG.$56pTU0SvRcTjx8vWE772jNFIg098COelw89ecEvBxoA
 - utilisez une commande `usermod` pour ajouter votre utilisateur au groupe `sudo`
 
 ```
-leobln@testtoto:~$ sudo usermod leobln
-[sudo] password for leobln:
-leobln is not in the sudoers file.
-leobln@testtoto:~$ groups leobln
-leobln : leobln cdrom floppy audio dip video plugdev users netdev bluetooth lpadmin scanner
+leobln@testtoto:/etc$ su - root
+Password:
+root@testtoto:~# usermod -a -G sudo leobln
 ```
 
 ### B. Practice
@@ -159,24 +157,52 @@ leobln : leobln cdrom floppy audio dip video plugdev users netdev bluetooth lpad
 
 - il devra s'appeler `stronk_admins`
 
+```
+leobln@testtoto:~$ sudo groupadd stronk_admins
+```
+
 🌞 **Créer un utilisateur**
 
 - il devra s'appeler `imbob`
 - il devra avoir un mot de passe défini
 - il devra appartenir aux groupes `imbob` et `stronk_admins`
 
+```
+leobln@testtoto:~$ sudo useradd imbob
+leobln@testtoto:~$ sudo passwd imbob
+New password:
+Retype new password:
+passwd: password updated successfully
+leobln@testtoto:~$ sudo usermod -aG stronk_admins imbob
+```
+
 🌞 **Prouver que l'utilisateur `imbob` est créé**
 
 - en affichant une seule ligne du fichier `/etc/passwd`
+
+```
+leobln@testtoto:~$ cat /etc/passwd | grep imbob
+imbob:x:1002:1003::/home/imbob:/bin/sh
+```
 
 🌞 **Prouver que l'utilisateur `imbob` a un password défini**
 
 - en affichant une seule ligne du fichier `/etc/shadow`
 
+```
+leobln@testtoto:~$ sudo cat /etc/shadow | grep imbob
+imbob:$y$j9T$bggqsGoPhaAyt0h34Ru3D.$CnOHzo3Pq5zu1iKys2pZsUCqzu5jEdwHF4.GuYF/EX/:20040:0:99999:7:::
+```
+
 🌞 **Prouver que l'utilisateur `imbob` appartient au groupe `stronk_admins`**
 
 - la liste des groupes et de leurs membres c'est dans `/etc/group`
 - affichez une seule ligne
+
+```
+leobln@testtoto:~$ sudo cat /etc/group | grep stronk_admins
+stronk_admins:x:1002:imbob
+```
 
 🌞 **Créer un deuxième utilisateur**
 
@@ -188,6 +214,11 @@ leobln : leobln cdrom floppy audio dip video plugdev users netdev bluetooth lpad
 
 - les membres du groupes `stronk_admins` ait le droit de taper des commandes `apt` en tant que `root`
 - l'utilisateur `imbob` peut taper n'importe quelle commande en tant que `root`
+
+```
+leobln@testtoto:~$ sudo visudo
+%stronk_admins ALL=(ALL) NOPASSWD: /usr/bin/apt, /usr/bin/apt-get
+```
 
 🌞 **Créer le dossier `/home/goodguy`** (avec une commande)
 
