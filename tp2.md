@@ -355,8 +355,6 @@ leobln@testtoto:~/Downloads$ ls
 dawa
 ```
 
-> *Dans les OS Linux, le format d'archivage/compression qu'on voit le plus c'est `.tar.gz` (archivage tar avec une compression gz) et moins de `.zip`.*
-
 🌞 **Dans le dossier `dawa/`, déterminer le chemin vers**
 
 - le seul fichier de 15Mo
@@ -368,6 +366,20 @@ dawa
   - je pense que vous avez vu que la structure c'est 50 `folderX`, chacun contient 50 dossiers `X`, et chacun contient 50 `fileX`
   - bon bah là y'a un fichier qui est contenu dans `folderX/X/X/X/X/` et c'est le seul qui 5 dossiers parents comme ça
 
-![Matryoshka](./img/dolls.png)
+```
+leobln@testtoto:~/Downloads$ find dawa/ -type f -size 15728640c
+dawa/folder31/19/file39
+leobln@testtoto:~/Downloads$ grep -l -r '^[7]*$' dawa/
+dawa/folder43/38/file41
+dawa/folder31/19/file39
+leobln@testtoto:~/Downloads$ find dawa/ -type f -name "cookie"
+dawa/folder14/25/cookie
+leobln@testtoto:~/Downloads$ find dawa/ -type f -name ".*"
+dawa/folder32/14/.hidden_file
+leobln@testtoto:~/Downloads$ find dawa/ -type f -newermt 2014-01-01 ! -newermt 2015-01-01
+dawa/folder36/40/file43
+leobln@testtoto:~/Downloads$ find dawa/ -type f -mindepth 6 -maxdepth 6
+dawa/folder37/45/23/43/54/file43
+```
 
 
