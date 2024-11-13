@@ -227,24 +227,27 @@ leobln@testtoto:~$ which ping
 
 # 2. Paquets
 
-
-➜ **Tous les OS Linux sont munis d'un store d'application**
-
-- c'est natif
-- quand tu fais `apt install` ou `dnf install`, ce genre de commandes, t'utilises ce store
-- on dit que `apt` et `dnf` sont des gestionnaires de paquets
-- ça permet aux utilisateurs de télécharger des nouveaux programmes (ou d'autres trucs) depuis un endroit safe
-
 🌞 **Installer le paquet `firefox`**
 
 - c'est juste pour faire pratiquer
 - si vous avez choisi un OS sans interface graphique, inutile de télécharger Firefox
   - sans interface graphique, vous pouvez installer le paquet `git` pour remplacer
 
+```
+sudo apt install firefox -y
+sudo apt install git -y
+```
+
+
 🌞 **Utiliser une commande pour lancer Firefox**
 
 - comme d'hab, une commande, c'est un programme hein
 - déterminer le chemin vers le programme `firefox`
+
+```
+leobln@testtoto:~$ which firefox
+/usr/bin/firefox
+```
 
 🌞 **Mais aussi déterminer...**
 
