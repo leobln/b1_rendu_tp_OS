@@ -361,3 +361,121 @@ Building dependency tree... Done
 Reading state information... Done
 66 packages can be upgraded. Run 'apt list --upgradable' to see them.
 ```
+
+# II. Processes
+
+
+🌞 **Affichez les processus `bash`**
+
+- une commande `ps` puis vous filtrez la sortie pour afficher que les `bash`
+
+```
+leobln@testtoto:~$ ps -aux | grep bash
+leobln      4930  0.0  0.2   9792  5752 pts/1    Ss   16:27   0:00 -bash
+leobln      5430  0.0  0.1   6332  2096 pts/1    S+   17:07   0:00 grep bash
+```
+
+🌞 **Affichez tous les processus lancés par votre utilisateur**
+
+- uniquement ceux qui sont lancés par votre utilisateur, pas ceux lancés par `root` ou autres
+
+```
+leobln@testtoto:~$ ps aux | grep leobln
+```
+
+🌞 **Affichez le top 5 des processus qui utilisent le plus de RAM**
+
+- je sais pas si j'ai besoin de préciser pourquoi c'est utile de savoir ça
+- si t'as plus de *RAM*, t'aimes bien savoir qui te la mange !
+- uniquement 5 lignes doivent s'afficher et elles ne contiennent QUE le nom du processus et la *RAM* utilisée
+
+```
+leobln@testtoto:~$ ps -eo %mem,comm --sort=-%mem | head -n 6
+%MEM COMMAND
+ 5.4 lightdm-gtk-gre
+ 5.4 Xorg
+ 4.9 xfwm4
+ 3.7 Xorg
+ 2.9 xfdesktop
+```
+
+🌞 **Affichez le *PID* du processus du service SSH**
+
+- le nom du *programme* c'est `sshd`
+- vous ne devez afficher qu'une seule ligne car un seul *programme* est lancé quand vous démarrez le service SSH
+- toutes les autres lignes qui s'affichent sont les *processus* lancés pour gérer vos sessions SSH actuellement en cours
+- il existe donc un seul *processus* SSH en cours d'exécution qui est le *parent* de tous les autres *processus* SSH (qui sont ses *enfants*)
+
+```
+leobln@testtoto:~$ ps -C sshd -o pid= | head -n 1
+    616
+```
+
+🌞 **Affichez le nom du processus avec l'identifiant le plus petit**
+
+- votre *commande* doit afficher le processus qui a le plus petit identifiant sans le connaître à l'avance
+  - l'identifiant d'un processus c'est son *PID* (*Process IDentifier*)
+  - sans connaître ni son nom ni son *PID* à l'avance, proposer une *commande* qui n'affiche que lui
+  - si on trie la liste par *PID*, suffit d'afficher que la première ligne, non ?...
+- **une seule ligne doit être affichée**
+- la *commande* doit tout le temps fonctionner quoi !
+
+```
+leobln@testtoto:~$ ps -e --sort=pid -o comm= | head -n 1
+systemd
+```
+
+## 2. Parent, enfant, et meurtre
+
+Quand on lance un *programme* on le fait toujours depuis un *processus* déjà en cours d'exécution. Genre quand on double-clique sur l'icone de Firefox pour le lancer, on le fait depuis l'interface graphique de l'OS, qui est un *processus* en cours d'exécution.
+
+On dit alors que le nouveau *processus* lancé est l'enfant du *programme* qui le lance (lui est le *processus parent*).
+
+🌞 **Déterminer le *PID* de votre shell actuel**
+
+- quand on ouvre un terminal sous Linux, généralement, le shell c'est `bash`
+- donc déterminez le *PID* du *processus* `bash` dans lequel vous tapez des *commandes*
+- n'affichez qu'une seule ligne
+
+🌞 **Déterminer le *PPID* de votre shell actuel**
+
+- le *PPID* c'est pour *Parent PID* : l'identifiant du *processus* parent
+- avec une *commande* `ps` et des *options* usuelles, l'info va sortir
+- n'affichez qu'une seule ligne
+
+🌞 **Déterminer le nom de ce *processus***
+
+- donc, votre `bash` est l'enfant d'un *processus* : lequel ?
+- vous venez de repérer son PID juste avant, facile de repérer son nom maintenant
+- n'affichez qu'une seule ligne
+
+🌞 **Lancer un *processus* `sleep 9999` en tâche de fond**
+
+- avec le caractère `&` comme au TP précédent
+- déterminer avec une *commande* `ps` son PID et son PPID
+  - vous n'afficherez qu'une seule ligne
+- vous devriez constater que son PPID, c'est votre `bash`
+
+🌞 **Fermez votre session SSH**
+
+- genre complètement déconnectez-vous de vos sessions SSH
+- puis reconnecte-toi avec une nouvelle connexion SSH
+- est-ce que le *processus* `sleep` lancé en tâche de fond s'exécute toujours ?
+- prouver que oui ou non en une seule *commande*
+
+> Un *parent* ne laisserait quand même pas ses *enfants* seuls voyons ? Qui ferait ça ? Si un *parent* est amené à mourir, il fait ce que tout bon *parent* fait : il tue ses *enfants*.
+
+![Process](./img/kill_process.png)
+
+➜ **Pour les curieux, un ptit trick**
+
+- si un *processus* n'a plus de parent, on dit qu'il est orphelin
+- ça arrive parfois plus ou moins dans des cas légitimes, quand le *processus* parent crash par exemple
+- un orphelin se fait immédiatement adopté ! Par l'OS lui-même (le ptit privilégié woaw)
+- ptit trick bash pour créer un *processus* orphelin ('vais pas expliquer les détails de la syntaxe ici meow)
+
+```bash
+( ( sleep 9999) & )
+```
+
+- si tu fais un `ps` tu verras que le *processus* est bien orphelin car il a été adopté par un process qui porte un PID très élevé, et pas n'importe lequel hehe !
