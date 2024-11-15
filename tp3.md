@@ -210,6 +210,15 @@ stronk_admins:x:1002:imbob
 - il devra avoir un mot de passe défini
 - il devra appartenir au groupe `imnotbobsorry` ET `stronk_admins`
 
+```
+leobln@testtoto:~$ sudo useradd imnotbobsorry
+leobln@testtoto:~$ sudo passwd imnotbobsorry
+New password:
+Retype new password:
+passwd: password updated successfully
+leobln@testtoto:~$ sudo usermod -aG stronk_admins imnotbobsorry
+```
+
 🌞 **Modifier la configuration de `sudo` pour que**
 
 - les membres du groupes `stronk_admins` ait le droit de taper des commandes `apt` en tant que `root`
@@ -222,12 +231,26 @@ leobln@testtoto:~$ sudo visudo
 
 🌞 **Créer le dossier `/home/goodguy`** (avec une commande)
 
+```
+leobln@testtoto:~$ sudo mkdir /home/goodguy
+```
+
 🌞 **Changer le répertoire personnel de `imbob`**
 
 - avec une commande `usermod`, définissez ce dossier comme le *répertoire personnel* de `imbob`
 - prouvez que le changement est effectif en affichant le contenu du fichier `passwd`
 
-> "*Répertoire personnel*" ça se dit "*home directory*" en anglais, on dit souvent juste "*homedir*" pour faire court. Sous Windows, pour rappel, les *homedirs* des utilisateurs sont stockés par défaut dans `C:/Users/<USER>`, pour Linux c'est donc `/home/<USER>` par défaut.
+```
+leobln@testtoto:~$ sudo usermod -d /home/goodguy -m imbob
+[sudo] password for leobln:
+usermod: directory /home/goodguy exists
+leobln@testtoto:~$ grep imbob /etc/passwd
+imbob:x:1002:1003::/home/goodguy:/bin/sh
+leobln@testtoto:~$ su - imbob
+Password:
+$ pwd
+/home/goodguy
+```
 
 🌞 **Créer le dossier `/home/badguy`**
 
@@ -236,12 +259,31 @@ leobln@testtoto:~$ sudo visudo
 - avec une commande `usermod`, définissez ce dossier `/home/badguy` comme le *répertoire personnel* de `imnotbobsorry`
 - prouvez que le changement est effectif en affichant le contenu du fichier `passwd`
 
-> Si t'essaies de te connecter en tant que `imbob` là en tapant la commande `su - imbob` il va sûrement se passer des trucs chelous... En tout cas `imbob` ne pourra pas y créer des fichiers. En effet, tu as sûrement du utiliser les droits de `root` pour créer le dossier, donc actuellement, le *répertoire personnel* de `imbob`, il appartient à `root`... Donc `imbob` n'a aucun droit dans son propre *répertoire personnel*, chelou.
+```
+leobln@testtoto:~$ sudo mkdir /home/badguy
+leobln@testtoto:~$ sudo usermod -d /home/badguy -m imnotbobsorry
+usermod: directory /home/badguy exists
+leobln@testtoto:~$  grep imnotbobsorry /etc/passwd
+imnotbobsorry:x:1003:1004::/home/badguy:/bin/sh
+leobln@testtoto:~$ su - imnotbobsorry
+Password:
+$ pwd
+/home/badguy
+```
 
 🌞 **Prouver que les permissions du dossier `/home/gooduy` sont incohérentes**
 
 - ça n'appartient pas à l'utilisateur `imbob`
 - ce qui est chelou, l'utilisateur il peut se connecter, mais il peut pas créer quoique ce soit dans son propre *répertoire personnel*, genre dans son propre dossier "Mes Documents"
+
+```
+leobln@testtoto:~$ ls -ld /home/goodguy
+drwxr-xr-x 2 root root 4096 Nov 15 16:18 /home/goodguy
+leobln@testtoto:~$ su - imbob
+Password:
+$ mkdir toto
+mkdir: cannot create directory ‘toto’: Permission denied
+``` 
 
 🌞 **Modifier les permissions de `/home/goodguy`**
 
@@ -249,10 +291,32 @@ leobln@testtoto:~$ sudo visudo
 - pareil pour tout son contenu
 - avec une commande `chown` (il faudra mettre options et arguments)
 
+```
+leobln@testtoto:~$ sudo chown imbob:imbob /home/goodguy
+leobln@testtoto:~$ ls -ld /home/goodguy/
+drwxr-xr-x 2 imbob imbob 4096 Nov 15 16:18 /home/goodguy/
+leobln@testtoto:~$ su - imbob
+Password:
+$ mkdir toto
+(pas de message d ereure)
+$ 
+```
+
 🌞 **Modifier les permissions de `/home/badguy`**
 
 - le dossier doit appartenir à `imnotbobsorry`
 - pareil pour tout son contenu
+
+```
+leobln@testtoto:~$ sudo chown imnotbobsorry:imnotbobsorry /home/badguy
+leobln@testtoto:~$ ls -ld /home/badguy/
+drwxr-xr-x 2 imnotbobsorry imnotbobsorry 4096 Nov 15 16:33 /home/badguy/
+leobln@testtoto:~$ su - imnotbobsorry
+Password:
+$ mkdir toto2
+(pas de message d ereure)
+$
+```
 
 🌞 **Connectez-vous sur l'utilisateur `imbob`**
 
@@ -261,6 +325,15 @@ leobln@testtoto:~$ sudo visudo
 - si tu fais `pwd` tu devrais être dans le dossier `/home/goodguy` tout de suite après connexion (le *répertoire personnel* de `imbob` !)
 - si tu fais `sudo echo meow` ou n'importe quelle autre commande avec `sudo`, ça devrait fonctionner
 
+```
+leobln@testtoto:~$ su - imbob
+Password:
+$ pwd
+/home/goodguy
+$ sudo echo meow
+meow
+```
+
 🌞 **Connectez-vous sur l'utilisateur `imnotbobsorry`**
 
 - il faut utiliser la commande `su - <USER>` pour ouvrir une nouvelle session en tant qu'un utilisateur
@@ -268,3 +341,23 @@ leobln@testtoto:~$ sudo visudo
 - si tu fais `pwd` tu devrais être dans le dossier `/home/badguy` tout de suite après 
 - si tu fais `sudo echo meow` ou n'importe quelle autre commande avec `sudo`, ça ne devrait fonctionner PAS fonctionner
   - sauf les commandes `sudo apt...`, essaie un `sudo apt update` pour voir ?
+  
+```
+leobln@testtoto:~$ su - imnotbobsorry
+Password:
+$ pwd
+/home/badguy
+$ sudo echo meow
+[sudo] password for imnotbobsorry:
+Sorry, user imnotbobsorry is not allowed to execute '/usr/bin/echo meow' as root on testtoto.toto.
+$ sudo apt update
+Get:1 http://security.debian.org/debian-security bookworm-security InRelease [48.0 kB]
+Hit:2 http://deb.debian.org/debian bookworm InRelease
+Get:3 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
+Get:4 http://security.debian.org/debian-security bookworm-security/main Sources [124 kB]
+Fetched 228 kB in 2s (107 kB/s)
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+66 packages can be upgraded. Run 'apt list --upgradable' to see them.
+```
