@@ -427,15 +427,16 @@ systemd
 
 ## 2. Parent, enfant, et meurtre
 
-Quand on lance un *programme* on le fait toujours depuis un *processus* déjà en cours d'exécution. Genre quand on double-clique sur l'icone de Firefox pour le lancer, on le fait depuis l'interface graphique de l'OS, qui est un *processus* en cours d'exécution.
-
-On dit alors que le nouveau *processus* lancé est l'enfant du *programme* qui le lance (lui est le *processus parent*).
-
 🌞 **Déterminer le *PID* de votre shell actuel**
 
 - quand on ouvre un terminal sous Linux, généralement, le shell c'est `bash`
 - donc déterminez le *PID* du *processus* `bash` dans lequel vous tapez des *commandes*
 - n'affichez qu'une seule ligne
+
+```
+leobln@testtoto:~$ echo $$
+4930
+```
 
 🌞 **Déterminer le *PPID* de votre shell actuel**
 
@@ -443,11 +444,21 @@ On dit alors que le nouveau *processus* lancé est l'enfant du *programme* qui l
 - avec une *commande* `ps` et des *options* usuelles, l'info va sortir
 - n'affichez qu'une seule ligne
 
+```
+leobln@testtoto:~$ ps -o ppid= -p $$
+   4926
+```
+
 🌞 **Déterminer le nom de ce *processus***
 
 - donc, votre `bash` est l'enfant d'un *processus* : lequel ?
 - vous venez de repérer son PID juste avant, facile de repérer son nom maintenant
 - n'affichez qu'une seule ligne
+
+```
+leobln@testtoto:~$ ps -o comm= -p $(ps -o ppid= -p $$)
+sshd
+```
 
 🌞 **Lancer un *processus* `sleep 9999` en tâche de fond**
 
@@ -456,6 +467,14 @@ On dit alors que le nouveau *processus* lancé est l'enfant du *programme* qui l
   - vous n'afficherez qu'une seule ligne
 - vous devriez constater que son PPID, c'est votre `bash`
 
+```
+leobln@testtoto:~$ sleep 9999 &
+[1] 5528
+leobln@testtoto:~$ ps -o pid,ppid -p $!
+    PID    PPID
+   5528    4930
+```
+
 🌞 **Fermez votre session SSH**
 
 - genre complètement déconnectez-vous de vos sessions SSH
@@ -463,19 +482,7 @@ On dit alors que le nouveau *processus* lancé est l'enfant du *programme* qui l
 - est-ce que le *processus* `sleep` lancé en tâche de fond s'exécute toujours ?
 - prouver que oui ou non en une seule *commande*
 
-> Un *parent* ne laisserait quand même pas ses *enfants* seuls voyons ? Qui ferait ça ? Si un *parent* est amené à mourir, il fait ce que tout bon *parent* fait : il tue ses *enfants*.
-
-![Process](./img/kill_process.png)
-
-➜ **Pour les curieux, un ptit trick**
-
-- si un *processus* n'a plus de parent, on dit qu'il est orphelin
-- ça arrive parfois plus ou moins dans des cas légitimes, quand le *processus* parent crash par exemple
-- un orphelin se fait immédiatement adopté ! Par l'OS lui-même (le ptit privilégié woaw)
-- ptit trick bash pour créer un *processus* orphelin ('vais pas expliquer les détails de la syntaxe ici meow)
-
-```bash
-( ( sleep 9999) & )
 ```
-
-- si tu fais un `ps` tu verras que le *processus* est bien orphelin car il a été adopté par un process qui porte un PID très élevé, et pas n'importe lequel hehe !
+leobln@testtoto:~$ ps aux | grep 'sleep 9999'
+leobln      5528  0.0  0.0   5464   872 ?        S    17:53   0:00 sleep 9999
+``` 
