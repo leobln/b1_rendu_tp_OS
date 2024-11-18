@@ -116,87 +116,55 @@ Disassembly of section .text:
 
 ## 2. Librairie et compilation dynamique
 
-### A. Intro lib
 
-➜ **Comme vous pouvez le voir, c'est vite chiant de programmer des applications entièrement soi-même.**
-
-Quand on considère le programme précédent qui ne faisait qu'afficher une string dans le terminal.
-
-➜ **C'est pourquoi on utilise des *libraries*.**
-
-Une *librairie* est un *programme* qui contient des fonctions réutilisables.
-
-Une *librairie* très utilisée en C est `stdio.h` qui contient notamment la fonction `printf()` qui permet d'éviter d'écrire des dingueries comme au ptit *programme* précédent.
-
----
-
-➜ Toujours le même code, mais en utilisant `printf()` cette fois. **Créer un fichier `hello2.c` avec le contenu suivant** :
-
-```c
-#include <stdio.h>
-
-int main()
-{
-    printf("Hello, World!\n");
-}
-```
-
-> *Dans tous les langages, pour pouvoir utiliser les fonctions d'une librarie, il faut d'abord "l'invoquer" ou "l'importer". C'est ce que l'on fait dans la première ligne avec `#include <stdio.h>`.*
-
-### B. Intro compilation dynamique
-
-➜ **On peut maintenant compiler le code**
-
-```bash
-gcc -fno-stack-protector -g -m32 -o hello2 hello2.c
-```
-
-> **Vous noterez que l'on a enlevé l'option `nostdlib`.**
-
-➜ **L'*OS* est intelligent. Lorsque notre *programme* importe des *libraries*, nous ne les compilons pas DANS le *programme*.**
-
-> On appelle ça une *compilation* **dynamique**. Par opposition à la *compilation* **statique** où les *librairies* sont compilés DANS le *programme*.
-
-Quand un *programme* est lancé, l'*OS* réserve un espace en *RAM* pour y déplacer le *programme*.
-
-**C'est aussi à la charge de l'*OS* de réserver de l'espace en *RAM* supplémentaire pour y copier les *librairies* qu'un *programme* a besoin.**
-
-Cela permet aussi de ne stocker qu'une seule fois les *librairies*, et tous les *programmes* lancés pourront y accéder.
-
-### C. Tracer les appels à des librairies
-
-➜ **Sous un OS Linux, le *service* qui s'occupe d'appeler les *libraries* s'appelle *ld*.**
-
-Nous pouvons suivre les appels réalisés par *ld* pendant l'exécution d'un *programme* à l'aide de la *commande* `ldd`.
-
-```bash
-# affiche les librairies que hello2 utilise pendant son exécution
-ldd hello2
-```
-
-**C'est à dire qu'on peut afficher les *librairies* dont un *programme* a besoin, en demandant à *ld* de les afficher, grâce à la *commande* `ldd`.**
 
 🌞 **Tracez à l'aide de la commande `ldd` les *librairies* appelées par...**
 
 - le programme `hello2`
+
+```
+leobln@testtoto:~/work$ ldd hello2
+        linux-gate.so.1 (0xf7f59000)
+        libc.so.6 => /lib32/libc.so.6 (0xf7d16000)
+        /lib/ld-linux.so.2 (0xf7f5b000)
+```
+
 - puis le programme `hello1`
+
+```
+leobln@testtoto:~/work$ ldd hello1
+        statically linked
+```
+
 - puis `ls`
   - vérifiez que le fichier `ls` que vous analysez est bien un *programme* ELF
   - toujours la *commande* `file` pour voir le type d'un fichier
+
+```
+leobln@testtoto:~/work$ file /bin/ls
+/bin/ls: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=15dfff3239aa7c3b16a71e6b2e3b6e4009dab998, for GNU/Linux 3.2.0, stripped
+leobln@testtoto:~/work$ ldd /bin/ls
+        linux-vdso.so.1 (0x00007ffd9ab9c000)
+        libselinux.so.1 => /lib/x86_64-linux-gnu/libselinux.so.1 (0x00007fbc35c9b000)
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fbc35aba000)
+        libpcre2-8.so.0 => /lib/x86_64-linux-gnu/libpcre2-8.so.0 (0x00007fbc35a20000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007fbc35d01000)
+```
+
 - puis `firefox` (vous l'avez installé au TP1 normalement !)
   - vérifiez que le fichier `firefox` que vous analysez est bien un un *programme* ELF
 
-🌞 **Parmi les *librairies* appelées par *hello2*, déterminer le type du fichier nommé `libc.so.X`**
-
-## 3. Compilation statique
-
-➜ **Copiez le fichier `hello2.c` en un fichier `hello3.c`, puis *compilez*-le avec la *commande* suivante** :
-
-```bash
-gcc -static -fno-stack-protector -g -m32 -o hello3 hello3.c
+```
+leobln@testtoto:~/work$ file /usr/bin/firefox
+/usr/bin/firefox: POSIX shell script, ASCII text executable
+leobln@testtoto:~/work$ ldd /usr/bin/firefox
+        not a dynamic executable
 ```
 
-> Notez l'utilisation de l'option `-static` pour indiquer qu'on veut faire une *compilation* ***statique*** (et donc, pas une *compilation* *dynamique*).
+🌞 **Parmi les *librairies* appelées par *hello2*, déterminer le type du fichier nommé `libc.so.X`**
+
+
+## 3. Compilation statique
 
 🌞 **Affichez le type des fichiers `hello2` et `hello3`**
 
@@ -204,12 +172,24 @@ gcc -static -fno-stack-protector -g -m32 -o hello3 hello3.c
 - une différence qui indique que l'un des deux est compilé statiquement
 - et l'autre dynamiquement
 
+```
+leobln@testtoto:~/work$ file hello2
+hello2: ELF 32-bit LSB pie executable, Intel 80386, version 1 (SYSV), **dynamically linked**, interpreter /lib/ld-linux.so.2, BuildID[sha1]=7bf77b8a069e05d26038ab8df5b253337dadd579, for GNU/Linux 3.2.0, with debug_info, not stripped
+leobln@testtoto:~/work$ file hello3
+hello3: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), **statically linked**, BuildID[sha1]=7fe0673e0ea721050851b32434cfbee5af8b0fdc, for GNU/Linux 3.2.0, with debug_info, not stripped
+```
+
 🌞 **Affichez leurs tailles**
 
 - avec une *commande* `du`
 - vous pouvez ajouter l'option `-h` pour afficher les tailles avec des K, M, G etc (`-h` pour *Human readable*)
 
-> Une *commande* `ls` aurait suffi pour voir la taille, mais elle est moins précise. En effet la *commande* `du` permet d'obtenir plus d'infos car elle est spécifiquement dédiée à ça (`du` pour *disk usage*).
+```
+leobln@testtoto:~/work$ du -h hello2
+16K     hello2
+leobln@testtoto:~/work$ du -h hello3
+728K    hello3
+```
 
 ## 4. Compilation cross-platform
 
