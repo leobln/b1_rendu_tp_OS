@@ -193,14 +193,6 @@ leobln@testtoto:~/work$ du -h hello3
 
 ## 4. Compilation cross-platform
 
-Comme vu dans le cours, chaque *CPU* (ou chaque *architecture* de *CPU*) a son propre langage : on appelle ça l'*architecture* du *CPU*.
-
-Quand vous compilez avec GCC sur votre *machine*, vous compilez en réalité pour l'*architecture* de votre *CPU* (celui de la *machine* depuis laquelle vous compilez).
-
-➜ **On va maintenant compiler notre *programme* pour une autre *architecture*.**
-
-Pour cela, on va d'abord vérifier l'*architecture* de votre *machine* Linux.
-
 🌞 **Affichez l'*architecture* de votre *CPU***
 
 - ça se fait avec la commande `lscpu`
@@ -208,25 +200,123 @@ Pour cela, on va d'abord vérifier l'*architecture* de votre *machine* Linux.
 - il suffit de le `cat` !
 - s'il y a plusieurs blocs, c'est pour chacun des coeurs de votre *CPU*
 
-Pour compiler un *programme* pour d'autres *architectures*, il va nous falloir utiliser d'autres versions de GCC, vous pouvez vérifier si vous avez la *commande* `x86-64-linux-gnu-gcc`. Celle-ci permet de compiler en *architecture* *x86_64*, l'*architecture* la plus courante.
+```
+leobln@testtoto:~/work$ lscpu
+Architecture:             x86_64
+  CPU op-mode(s):         32-bit, 64-bit
+  Address sizes:          39 bits physical, 48 bits virtual
+  Byte Order:             Little Endian
+CPU(s):                   1
+  On-line CPU(s) list:    0
+Vendor ID:                GenuineIntel
+  Model name:             13th Gen Intel(R) Core(TM) i7-1355U
+    CPU family:           6
+    Model:                186
+    Thread(s) per core:   1
+    Core(s) per socket:   1
+    Socket(s):            1
+    Stepping:             3
+    BogoMIPS:             5222.39
+    Flags:                fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
+                           cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx
+                          rdtscp lm constant_tsc rep_good nopl xtopology nonstop_t
+                          sc cpuid tsc_known_freq pni pclmulqdq ssse3 cx16 sse4_1
+                          sse4_2 movbe popcnt aes rdrand hypervisor lahf_lm abm 3d
+                          nowprefetch ibrs_enhanced fsgsbase bmi1 bmi2 invpcid rds
+                          eed adx clflushopt sha_ni arat md_clear flush_l1d arch_c
+                          apabilities
+Virtualization features:
+  Hypervisor vendor:      KVM
+  Virtualization type:    full
+Caches (sum of all):
+  L1d:                    48 KiB (1 instance)
+  L1i:                    32 KiB (1 instance)
+  L2:                     1.3 MiB (1 instance)
+  L3:                     12 MiB (1 instance)
+NUMA:
+  NUMA node(s):           1
+  NUMA node0 CPU(s):      0
+Vulnerabilities:
+  Gather data sampling:   Not affected
+  Itlb multihit:          Not affected
+  L1tf:                   Not affected
+  Mds:                    Not affected
+  Meltdown:               Not affected
+  Mmio stale data:        Not affected
+  Reg file data sampling: Vulnerable: No microcode
+  Retbleed:               Mitigation; Enhanced IBRS
+  Spec rstack overflow:   Not affected
+  Spec store bypass:      Vulnerable
+  Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer
+                          sanitization
+  Spectre v2:             Mitigation; Enhanced / Automatic IBRS; RSB filling; PBRS
+                          B-eIBRS SW sequence; BHI SW loop, KVM SW loop
+  Srbds:                  Not affected
+  Tsx async abort:        Not affected
+leobln@testtoto:~/work$ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 186
+model name      : 13th Gen Intel(R) Core(TM) i7-1355U
+stepping        : 3
+microcode       : 0xffffffff
+cpu MHz         : 2611.196
+cache size      : 12288 KB
+physical id     : 0
+siblings        : 1
+core id         : 0
+cpu cores       : 1
+apicid          : 0
+initial apicid  : 0
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 22
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq ssse3 cx16 sse4_1 sse4_2 movbe popcnt aes rdrand hypervisor lahf_lm abm 3dnowprefetch ibrs_enhanced fsgsbase bmi1 bmi2 invpcid rdseed adx clflushopt sha_ni arat md_clear flush_l1d arch_capabilities
+bugs            : spectre_v1 spectre_v2 spec_store_bypass swapgs retbleed eibrs_pbrsb rfds bhi
+bogomips        : 5222.39
+clflush size    : 64
+cache_alignment : 64
+address sizes   : 39 bits physical, 48 bits virtual
+power management:
+```
 
 🌞 **Vérifiez que vous avez la commande `x86-64-linux-gnu-gcc`**
 
 - prouvez-le avec la *commande* de votre choix
+
+```
+leobln@testtoto:~/work$ which x86_64-linux-gnu-gcc
+/usr/bin/x86_64-linux-gnu-gcc
+```
 
 🌞 **Compilez votre fichier `hello3.c` dans un fichier cible nommé `hello4` vers une autre *architecture* que la vôtre**
 
 - vous devez donc trouver une autre commande `gcc` que `x86-64-linux-gnu-gcc` qui est en réalité celle que vous utilisez depuis le début
 - par exemple, trouvez une *commande* `gcc` qui permet de compiler vers une *architecture* *ARM*
 
-> *ARM* c'est l'*architecture* utilisée par les CPU des téléphones, des aspirateurs connectés et des Mac M1, M2 et M3, des tests de grossesse, entre un million d'autres exemples. Du moment que ça doit être petit, embarqué, et pas consommer beaucoup d'énergie, ce sera souvent une *architecture* *ARM*.
+```
+leobln@testtoto:~/work$ arm-linux-gnueabihf-gcc hello3.c -o hello4
+```
 
 🌞 **[Désassemblez](../../cours/memo/glossary.md#désassembler) `hello3` et `hello4` à l'aide d'`objdump`**
 
 - vous devriez constater que malgré le même *programme* C d'entrée, le contenu des deux *programmes* une fois compilés est bien différent
 
+```
+leobln@testtoto:~/work$ objdump -d hello3
+[...]
+leobln@testtoto:~/work$ arm-linux-gnueabihf-objdump -d hello4
+```
+
 🌞 **Essayez d'exécuter le *programme* `hello4`**
 
 - sproutch !
 - should NOT work
+
+```
+leobln@testtoto:~/work$ ./hello4
+-bash: ./hello4: cannot execute binary file: Exec format error
+```
 
