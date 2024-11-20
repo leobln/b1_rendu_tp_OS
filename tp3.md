@@ -486,3 +486,220 @@ leobln@testtoto:~$ ps -o pid,ppid -p $!
 leobln@testtoto:~$ ps aux | grep 'sleep 9999'
 leobln      5528  0.0  0.0   5464   872 ?        S    17:53   0:00 sleep 9999
 ``` 
+# III. Services
+
+
+
+🌞 **S'assurer que le service `ssh` est démarré**
+
+```
+leobln@testtoto:~$ systemctl status
+● testtoto
+    State: running
+    Units: 272 loaded (incl. loaded aliases)
+     Jobs: 0 queued
+   Failed: 0 units
+    Since: Wed 2024-11-20 08:20:56 CET; 1h 26min ago
+  systemd: 252.31-1~deb12u1
+   CGroup: /
+           ├─init.scope
+           │ └─1 /lib/systemd/systemd --system --deserialize=16
+           ├─system.slice
+           │ ├─ModemManager.service
+           │ │ └─444 /usr/sbin/ModemManager
+           │ ├─NetworkManager.service
+           │ │ └─430 /usr/sbin/NetworkManager --no-daemon
+           │ ├─avahi-daemon.service
+           │ │ ├─388 "avahi-daemon: running [testtoto.local]"
+           │ │ └─412 "avahi-daemon: chroot helper"
+           │ ├─colord.service
+           │ │ └─941 /usr/libexec/colord
+           │ ├─cron.service
+           │ │ └─391 /usr/sbin/cron -f
+           │ ├─cups-browsed.service
+           │ │ └─613 /usr/sbin/cups-browsed
+           │ ├─cups.service
+           │ │ └─599 /usr/sbin/cupsd -l
+           │ ├─dbus.service
+           │ │ └─392 /usr/bin/dbus-daemon --system --address=systemd: --nof>
+           │ ├─lightdm.service
+           │ │ ├─ 602 /usr/sbin/lightdm
+           │ │ ├─ 614 /usr/lib/xorg/Xorg :0 -seat seat0 -auth /var/run/ligh>
+           │ │ ├─1160 /usr/lib/xorg/Xorg :1 -seat seat0 -auth /var/run/ligh>
+           │ │ └─1291 lightdm --session-child 17 29
+           │ ├─networking.service
+           │ │ └─520 dhclient -4 -v -i -pf /run/dhclient.enp0s3.pid -lf /va>
+           │ ├─polkit.service
+           │ │ └─403 /usr/lib/polkit-1/polkitd --no-debug
+           │ ├─rtkit-daemon.service
+           │ │ └─651 /usr/libexec/rtkit-daemon
+           │ ├─ssh.service
+lines 1-40
+
+```
+
+🌞 **Isolez la ligne qui indique le nom du programme lancé**
+
+```
+leobln@testtoto:~$ systemctl status | grep "Main PID"
+             │ │ └─31939 grep "Main PID"
+```
+
+🌞 **Déterminer le port sur lequel écoute le service SSH**
+
+```
+leobln@testtoto:~$ sudo ss -lnpt | grep sshd
+LISTEN 0      128          0.0.0.0:22        0.0.0.0:*    users:(("sshd",pid=609,fd=3))
+LISTEN 0      128             [::]:22           [::]:*    users:(("sshd",pid=609,fd=4))
+```
+
+🌞 **Consulter les logs du service SSH**
+
+```
+leobln@testtoto:~$ sudo journalctl -u ssh.service
+```
+
+## 3. Modification du service
+
+Dans cette section, on va aller regarer ce qui constitue notre *service* SSH :
+
+- la configuration du *service* SSH spécifiquement
+- et le fichier qui contient la définition du *service* SSH
+
+### A. Configuration du service SSH
+
+La plupart des *programmes* (de League of Legends à Photoshop en passant par notre service SSH) peuvent être configurés au lancement : on indique des choses pour modifier le comportement du *programme* pendant son fonctionnement.
+
+Suivant le *programme*, on fait ça différemment : parfois juste quelques options suffisent (comme ajouter `-ef` à la commande `ps`), parfois y'a trop de configurations à définir et on préfère faire un *fichier de configuration*.
+
+Un *fichier de configuration* c'est un simple fichier texte, qui est lu par un *programme* automatiquement quand il est lancé. Le *programme* adopte alors la configuration qui est définie dans le fichier.
+
+Pour revenir à nos moutons, sur un système Linux, comme tout *fichier de configuration*, celui du *service* SSH se trouve dans le dossier `/etc/`.
+
+Plus précisément, il existe un sous-dossier `/etc/ssh/` qui contient toute la configuration relative à SSH.
+
+🌞 **Identifier le fichier de configuration du serveur SSH**
+
+- utilisez une commande pour voir le propriétaire du fichier
+- et les permissions appliquées dessus
+
+🌞 **Modifier le fichier de conf**
+
+- exécutez un `echo $RANDOM` dans votre shell pour **demander à votre shell de vous fournir un nombre aléatoire**
+  - simplement pour vous montrer la petite astuce et vous faire manipuler le shell :)
+  - pour un numéro de port valide, c'est entre 1 et 65535 ! 
+- **changez le port d'écoute du serveur SSH** pour qu'il écoute sur ce numéro de port
+  - il faut modifier le fichier de configuration avec `nano` par exemple, une seule ligne à changer
+  - dans le compte-rendu je veux un `cat` du fichier de conf
+  - filtré par un `| grep` pour mettre en évidence la ligne que vous avez modifié
+
+🌞 **Redémarrer le service**
+
+- avec une *commande* `systemctl restart <SERVICE>`
+
+> **C'est TOUT LE TEMPS comme ça :** quand vous modifiez la configuration d'un truc, **il faut relancer le truc pour que la configuration prenne effet.** Logique, puisque c'est au démarrage qu'un *programme* regarde la configuration qu'il doit adopter.
+
+🌞 **Effectuer une connexion SSH sur le nouveau port**
+
+- depuis votre PC
+- il faudra utiliser une option à la *commande* `ssh` pour vous connecter à la VM afin de préciser un port non-conventionnel (celui que vous avez défini dans le *fichier de configuration*)
+
+> Je vous conseille de remettre le port par défaut une fois que cette partie est terminée.
+
+✨ **Bonus : affiner la conf du serveur SSH**
+
+- faites vos plus belles recherches internet pour améliorer la conf de SSH
+- par "améliorer" on entend essentiellement ici : augmenter son niveau de sécurité
+- le but c'est pas de me rendre 10000 lignes de conf que vous pompez sur internet pour le bonus, mais de vous éveiller à divers aspects de SSH, la sécu ou d'autres choses liées
+
+![Such a hacker](./img/such_a_hacker.png)
+
+### B. Le service en lui-même
+
+Il existe un fichier qui définit quoi faire quand on tape `systemctl start ssh`. En effet, taper une *commande* `systemctl start` revient juste à demander à l'OS de lancer un *service* : c'est à dire un simple *programme* lancé.
+
+Quel *programme* ? Il existe un fichier qui porte l'extension `.service` qui définit (entre autres), pour chaque *service*, quelle est le *programme* à lancer.
+
+🌞 **Trouver le fichier `ssh.service`**
+
+🌞 **Déterminer quel est le programme lancé**
+
+- quand on tape une commande `systemctl start ssh`, le fichier `ssh.service` est lu, et le *programme* indiqué en face de `ExecStart=` est lancé
+- isolez uniquement cette ligne
+
+## 4. Créez votre propre service
+
+➜ On va se servir d'une petite commande pratique pour mettre ça en oeuvre, faites un petit test d'abord :
+
+- depuis un terminal de la VM :
+
+```bash
+# on crée un ptit fichier bidon dans le dossier actuel
+echo "meow" > meow
+
+# on lance un ptit serveur web en une seule ligne de commande
+# ptite commande python qui fait l'taf !
+python3 -m http.server 8888
+
+# vous pouvez couper la commande avec CTRL + C quand vous aurez fait le test juste après
+```
+
+- pendant que ça tourne, ouvrez un navigateur sur VOTRE PC
+  - et visitez l'URL `http://<IP_VM>:8888`
+  - par exemple `http://10.1.1.10:8888` si ta VM porte l'adresse IP 10.1.1.10
+- ça doit fonctionner avant de continuer
+  - vous devriez au moins voir le fichier `meow`
+
+➜ Plutôt que de lancer cette commande à la main pour avoir notre ptit serveur Web, on va créer un service qui lance automatiquement cette commande !
+
+🌞 **Déterminer le dossier qui contient la commande `python3`**
+
+- avec une commande adaptée
+
+🌞 **Créez un fichier `/etc/systemd/system/meow_web.service`**
+
+- avec `nano`, quand on modifie un fichier qui n'existe pas, il sera créé
+- déposez le contenu suivant :
+
+```ini
+[Unit]
+Description=Super serveur web MEOW
+
+[Service]
+ExecStart=<CCHEMIN_VERS_PYTHON3> -m http.server 8888
+
+[Install]
+WantedBy=multi-user.target
+```
+
+> Si l'utilisateur veut ajouter des *services* au système, ça se fait donc en créant des fichiers dans le dossier indiqué : `/etc/systemd/system/meow_web.service`
+
+🌞 **Indiquez à l'OS que vous avez modifié les *services***
+
+- il faut taper la *commande* `systemctl daemon-reload`
+
+🌞 **Démarrez votre service**
+
+- avec la *commande* `systemctl start meow_web`
+
+🌞 **Assurez-vous que le service `meow_web` est actif**
+
+- avec une *commande* `systemctl status`
+
+➜ **Vérifier que vous pouvez accéder au *service* depuis un navigateur de votre PC maintenant que le *service* est lancé !**
+
+🌞 **Déterminer le PID du *processus* Python en cours d'exécution**
+
+- utilisez une *commande* `ps`
+- la ligne doit afficher le PID, le nom de l'utilisateur qui a lancé le *programme*, et la ligne de *commande* qui a lancé le *programme*
+
+🌞 **Prouvez que le *programme* écoute derrière le port 8888**
+
+- comme dans la section avec le *service* SSH où il faut prouver qu'il écoute derrière le port 22
+- affichez uniquement la ligne qui concerne le programe Python
+
+🌞 **Faire en sote que le *service* se lance automatiquement au démarrage de la machine**
+
+- avec une commande `systemctl`
+
+
