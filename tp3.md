@@ -641,52 +641,57 @@ ExecStart=/usr/sbin/sshd -D $SSHD_OPTS
 
 🌞 **Déterminer le dossier qui contient la commande `python3`**
 
-- avec une commande adaptée
+```
+leobln@testtoto:~$ which python3
+/usr/bin/python3
+```
 
 🌞 **Créez un fichier `/etc/systemd/system/meow_web.service`**
 
-- avec `nano`, quand on modifie un fichier qui n'existe pas, il sera créé
-- déposez le contenu suivant :
-
-```ini
-[Unit]
-Description=Super serveur web MEOW
-
-[Service]
-ExecStart=<CCHEMIN_VERS_PYTHON3> -m http.server 8888
-
-[Install]
-WantedBy=multi-user.target
 ```
-
-> Si l'utilisateur veut ajouter des *services* au système, ça se fait donc en créant des fichiers dans le dossier indiqué : `/etc/systemd/system/meow_web.service`
+leobln@testtoto:~$ sudo nano /etc/systemd/system/meow_web.service
+```
 
 🌞 **Indiquez à l'OS que vous avez modifié les *services***
 
-- il faut taper la *commande* `systemctl daemon-reload`
+```
+leobln@testtoto:~$ sudo systemctl daemon-reload
+
+```
 
 🌞 **Démarrez votre service**
 
-- avec la *commande* `systemctl start meow_web`
+```
+leobln@testtoto:~$ sudo systemctl start meow_web.service
+```
 
 🌞 **Assurez-vous que le service `meow_web` est actif**
 
-- avec une *commande* `systemctl status`
-
-➜ **Vérifier que vous pouvez accéder au *service* depuis un navigateur de votre PC maintenant que le *service* est lancé !**
+```
+leobln@testtoto:~$ sudo systemctl status meow_web.service
+```
 
 🌞 **Déterminer le PID du *processus* Python en cours d'exécution**
 
-- utilisez une *commande* `ps`
-- la ligne doit afficher le PID, le nom de l'utilisateur qui a lancé le *programme*, et la ligne de *commande* qui a lancé le *programme*
+```
+leobln@testtoto:~$ ps -eo pid,user,command | grep python
+   1047 leobln   /usr/bin/python3 /usr/share/system-config-printer/applet.py
+   1356 leobln   python3 -m http.server 8888
+```
 
 🌞 **Prouvez que le *programme* écoute derrière le port 8888**
 
-- comme dans la section avec le *service* SSH où il faut prouver qu'il écoute derrière le port 22
-- affichez uniquement la ligne qui concerne le programe Python
+```
+leobln@testtoto:~$ sudo ss -lnpt | grep ':8888' | grep python
+LISTEN 0      5            0.0.0.0:8888      0.0.0.0:*    users:(("python3",pid=1356,fd=3))
+```
 
 🌞 **Faire en sote que le *service* se lance automatiquement au démarrage de la machine**
 
-- avec une commande `systemctl`
+```
+leobln@testtoto:~$ sudo systemctl enable meow_web.service
+Created symlink '/etc/systemd/system/multi-user.target.wants/meow_web.service' → '/etc/systemd/system/meow_web.service'.
+```
+
 
 
