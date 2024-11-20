@@ -181,9 +181,6 @@ hello3: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), **statica
 
 🌞 **Affichez leurs tailles**
 
-- avec une *commande* `du`
-- vous pouvez ajouter l'option `-h` pour afficher les tailles avec des K, M, G etc (`-h` pour *Human readable*)
-
 ```
 leobln@testtoto:~/work$ du -h hello2
 16K     hello2
