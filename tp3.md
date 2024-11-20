@@ -561,96 +561,83 @@ leobln@testtoto:~$ sudo journalctl -u ssh.service
 
 ## 3. Modification du service
 
-Dans cette section, on va aller regarer ce qui constitue notre *service* SSH :
-
-- la configuration du *service* SSH spécifiquement
-- et le fichier qui contient la définition du *service* SSH
-
-### A. Configuration du service SSH
-
-La plupart des *programmes* (de League of Legends à Photoshop en passant par notre service SSH) peuvent être configurés au lancement : on indique des choses pour modifier le comportement du *programme* pendant son fonctionnement.
-
-Suivant le *programme*, on fait ça différemment : parfois juste quelques options suffisent (comme ajouter `-ef` à la commande `ps`), parfois y'a trop de configurations à définir et on préfère faire un *fichier de configuration*.
-
-Un *fichier de configuration* c'est un simple fichier texte, qui est lu par un *programme* automatiquement quand il est lancé. Le *programme* adopte alors la configuration qui est définie dans le fichier.
-
-Pour revenir à nos moutons, sur un système Linux, comme tout *fichier de configuration*, celui du *service* SSH se trouve dans le dossier `/etc/`.
-
-Plus précisément, il existe un sous-dossier `/etc/ssh/` qui contient toute la configuration relative à SSH.
-
 🌞 **Identifier le fichier de configuration du serveur SSH**
 
-- utilisez une commande pour voir le propriétaire du fichier
-- et les permissions appliquées dessus
+```
+leobln@testtoto:~/work$ ls -l /etc/ssh/sshd_config
+-rw-r--r-- 1 root root 3223 Jun 22 21:38 /etc/ssh/sshd_config
+```
 
 🌞 **Modifier le fichier de conf**
 
-- exécutez un `echo $RANDOM` dans votre shell pour **demander à votre shell de vous fournir un nombre aléatoire**
-  - simplement pour vous montrer la petite astuce et vous faire manipuler le shell :)
-  - pour un numéro de port valide, c'est entre 1 et 65535 ! 
-- **changez le port d'écoute du serveur SSH** pour qu'il écoute sur ce numéro de port
-  - il faut modifier le fichier de configuration avec `nano` par exemple, une seule ligne à changer
-  - dans le compte-rendu je veux un `cat` du fichier de conf
-  - filtré par un `| grep` pour mettre en évidence la ligne que vous avez modifié
+```
+leobln@testtoto:~/work$ echo $RANDOM
+20340
+leobln@testtoto:~/work$ cat /etc/ssh/sshd_config | grep "Port"
+#Port 20340
+```
 
 🌞 **Redémarrer le service**
 
-- avec une *commande* `systemctl restart <SERVICE>`
-
-> **C'est TOUT LE TEMPS comme ça :** quand vous modifiez la configuration d'un truc, **il faut relancer le truc pour que la configuration prenne effet.** Logique, puisque c'est au démarrage qu'un *programme* regarde la configuration qu'il doit adopter.
+```
+leobln@testtoto:~/work$ sudo systemctl restart ssh
+```
 
 🌞 **Effectuer une connexion SSH sur le nouveau port**
 
-- depuis votre PC
-- il faudra utiliser une option à la *commande* `ssh` pour vous connecter à la VM afin de préciser un port non-conventionnel (celui que vous avez défini dans le *fichier de configuration*)
+```
+leobln@testtoto:~/work$ ssh -p 20340 leobln@192.168.74.3
+leobln@192.168.74.3's password:
+Linux testtoto 6.1.0-26-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.112-1 (2024-09-30) x86_64
 
-> Je vous conseille de remettre le port par défaut une fois que cette partie est terminée.
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
 
-✨ **Bonus : affiner la conf du serveur SSH**
-
-- faites vos plus belles recherches internet pour améliorer la conf de SSH
-- par "améliorer" on entend essentiellement ici : augmenter son niveau de sécurité
-- le but c'est pas de me rendre 10000 lignes de conf que vous pompez sur internet pour le bonus, mais de vous éveiller à divers aspects de SSH, la sécu ou d'autres choses liées
-
-![Such a hacker](./img/such_a_hacker.png)
-
-### B. Le service en lui-même
-
-Il existe un fichier qui définit quoi faire quand on tape `systemctl start ssh`. En effet, taper une *commande* `systemctl start` revient juste à demander à l'OS de lancer un *service* : c'est à dire un simple *programme* lancé.
-
-Quel *programme* ? Il existe un fichier qui porte l'extension `.service` qui définit (entre autres), pour chaque *service*, quelle est le *programme* à lancer.
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+Last login: Wed Nov 20 11:22:44 2024 from 192.168.74.3
+```
 
 🌞 **Trouver le fichier `ssh.service`**
 
-🌞 **Déterminer quel est le programme lancé**
+```
+leobln@testtoto:~$ sudo find /etc/systemd /lib/systemd -name "ssh.service"
+/etc/systemd/system/multi-user.target.wants/ssh.service
+/lib/systemd/system/ssh.service
+leobln@testtoto:~$ cat /lib/systemd/system/ssh.service
+[Unit]
+Description=OpenBSD Secure Shell server
+Documentation=man:sshd(8) man:sshd_config(5)
+After=network.target nss-user-lookup.target auditd.service
+ConditionPathExists=!/etc/ssh/sshd_not_to_be_run
 
-- quand on tape une commande `systemctl start ssh`, le fichier `ssh.service` est lu, et le *programme* indiqué en face de `ExecStart=` est lancé
-- isolez uniquement cette ligne
+[Service]
+EnvironmentFile=-/etc/default/ssh
+ExecStartPre=/usr/sbin/sshd -t
+ExecStart=/usr/sbin/sshd -D $SSHD_OPTS
+ExecReload=/usr/sbin/sshd -t
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=on-failure
+RestartPreventExitStatus=255
+Type=notify
+RuntimeDirectory=sshd
+RuntimeDirectoryMode=0755
 
-## 4. Créez votre propre service
-
-➜ On va se servir d'une petite commande pratique pour mettre ça en oeuvre, faites un petit test d'abord :
-
-- depuis un terminal de la VM :
-
-```bash
-# on crée un ptit fichier bidon dans le dossier actuel
-echo "meow" > meow
-
-# on lance un ptit serveur web en une seule ligne de commande
-# ptite commande python qui fait l'taf !
-python3 -m http.server 8888
-
-# vous pouvez couper la commande avec CTRL + C quand vous aurez fait le test juste après
+[Install]
+WantedBy=multi-user.target
+Alias=sshd.service
 ```
 
-- pendant que ça tourne, ouvrez un navigateur sur VOTRE PC
-  - et visitez l'URL `http://<IP_VM>:8888`
-  - par exemple `http://10.1.1.10:8888` si ta VM porte l'adresse IP 10.1.1.10
-- ça doit fonctionner avant de continuer
-  - vous devriez au moins voir le fichier `meow`
+🌞 **Déterminer quel est le programme lancé**
 
-➜ Plutôt que de lancer cette commande à la main pour avoir notre ptit serveur Web, on va créer un service qui lance automatiquement cette commande !
+```
+leobln@testtoto:~$ grep "ExecStart=" /lib/systemd/system/ssh.service
+ExecStart=/usr/sbin/sshd -D $SSHD_OPTS
+```
+
+## 4. Créez votre propre service
 
 🌞 **Déterminer le dossier qui contient la commande `python3`**
 
